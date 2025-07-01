@@ -10,6 +10,7 @@ function DataViewer() {
     limit: 100
   });
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchPerformed, setSearchPerformed] = useState(false);
   const itemsPerPage = 20;
 
   useEffect(() => {
@@ -23,20 +24,43 @@ function DataViewer() {
       
       if (isSearch) {
         const params = new URLSearchParams();
-        if (searchParams.number) params.append('number', searchParams.number);
-        if (searchParams.startDate) params.append('startDate', searchParams.startDate);
-        if (searchParams.endDate) params.append('endDate', searchParams.endDate);
+        
+        // 空文字列や空白のみの場合はパラメータに含めない
+        if (searchParams.number && searchParams.number.trim() !== '') {
+          params.append('number', searchParams.number.trim());
+        }
+        if (searchParams.startDate && searchParams.startDate.trim() !== '') {
+          params.append('startDate', searchParams.startDate.trim());
+        }
+        if (searchParams.endDate && searchParams.endDate.trim() !== '') {
+          params.append('endDate', searchParams.endDate.trim());
+        }
         params.append('limit', searchParams.limit);
         
         url = `http://localhost:3001/api/numbers/search?${params.toString()}`;
+        console.log('検索URL:', url);
       }
       
       const response = await fetch(url);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
       const result = await response.json();
+      console.log('取得したデータ:', result);
+      
+      // エラーレスポンスの場合
+      if (result.error) {
+        console.error('サーバーエラー:', result.error);
+        setData([]);
+        return;
+      }
       
       // データが配列であることを確認
       if (Array.isArray(result)) {
         setData(result);
+        setSearchPerformed(isSearch);
       } else {
         console.error('取得したデータが配列ではありません:', result);
         setData([]);
@@ -52,6 +76,7 @@ function DataViewer() {
 
   const handleSearch = (e) => {
     e.preventDefault();
+    console.log('検索実行:', searchParams);
     fetchData(true);
   };
 
@@ -62,6 +87,7 @@ function DataViewer() {
       endDate: '',
       limit: 100
     });
+    setSearchPerformed(false);
     fetchData(false);
   };
 
@@ -142,9 +168,12 @@ function DataViewer() {
               id="number"
               value={searchParams.number}
               onChange={(e) => setSearchParams({...searchParams, number: e.target.value})}
-              placeholder="例: 1234 または 12"
+              placeholder="例: 1234（完全一致）または 12（部分一致）"
               className="form-input"
             />
+            <small className="form-help">
+              4桁入力で完全一致、1-3桁で部分一致検索
+            </small>
           </div>
           
           <div className="form-group">
@@ -196,7 +225,16 @@ function DataViewer() {
       </form>
 
       <div className="data-info">
-        <p>検索結果: {Array.isArray(data) ? data.length : 0}件</p>
+        <p>
+          {searchPerformed ? '検索' : '全データ'}結果: {Array.isArray(data) ? data.length : 0}件
+          {searchPerformed && (
+            <span className="search-status">
+              {searchParams.number && ` | 番号: ${searchParams.number}`}
+              {searchParams.startDate && ` | 開始: ${searchParams.startDate}`}
+              {searchParams.endDate && ` | 終了: ${searchParams.endDate}`}
+            </span>
+          )}
+        </p>
       </div>
 
       {loading ? (
@@ -217,21 +255,29 @@ function DataViewer() {
                 </tr>
               </thead>
               <tbody>
-                {paginatedData.map((item) => {
-                  const digits = item.numbers.toString().padStart(4, '0').split('');
-                  return (
-                    <tr key={item.id}>
-                      <td className="draw-number">第{item.id}回</td>
-                      <td className="draw-date">{item.date}</td>
-                      <td className="winning-number">{item.numbers}</td>
-                      <td className="digits">
-                        {digits.map((digit, index) => (
-                          <span key={index} className="digit">{digit}</span>
-                        ))}
-                      </td>
-                    </tr>
-                  );
-                })}
+                {paginatedData.length > 0 ? (
+                  paginatedData.map((item) => {
+                    const digits = item.numbers.toString().padStart(4, '0').split('');
+                    return (
+                      <tr key={item.id}>
+                        <td className="draw-number">第{item.id}回</td>
+                        <td className="draw-date">{item.date}</td>
+                        <td className="winning-number">{item.numbers}</td>
+                        <td className="digits">
+                          {digits.map((digit, index) => (
+                            <span key={index} className="digit">{digit}</span>
+                          ))}
+                        </td>
+                      </tr>
+                    );
+                  })
+                ) : (
+                  <tr>
+                    <td colSpan="4" className="no-data">
+                      {searchPerformed ? '検索条件に一致するデータが見つかりませんでした' : 'データがありません'}
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
@@ -301,6 +347,12 @@ function DataViewer() {
           box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
+        .form-help {
+          margin-top: 0.25rem;
+          font-size: 0.75rem;
+          color: #718096;
+        }
+
         .search-buttons {
           display: flex;
           gap: 1rem;
@@ -319,6 +371,11 @@ function DataViewer() {
           margin-bottom: 1rem;
           color: #718096;
           font-size: 0.9rem;
+        }
+
+        .search-status {
+          font-size: 0.8rem;
+          color: #667eea;
         }
 
         .loading-container {
@@ -395,6 +452,13 @@ function DataViewer() {
           font-weight: 600;
           font-family: 'Courier New', monospace;
           color: #667eea;
+        }
+
+        .no-data {
+          text-align: center;
+          color: #718096;
+          font-style: italic;
+          padding: 2rem;
         }
 
         .pagination {

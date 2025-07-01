@@ -49,20 +49,37 @@ app.get('/api/numbers/search', async (req, res) => {
     const { number, startDate, endDate, limit = 100 } = req.query;
     const connection = createConnection();
     
+    console.log('検索パラメータ:', { number, startDate, endDate, limit });
+    
     let query = 'SELECT * FROM numbers4 WHERE 1=1';
     const params = [];
     
-    if (number) {
-      query += ' AND numbers LIKE ?';
-      params.push(`%${number}%`);
+    // 数字検索の改善
+    if (number && number.trim() !== '') {
+      const searchNumber = number.trim();
+      
+      // 完全一致または部分一致で検索
+      if (searchNumber.length === 4) {
+        // 4桁の場合は完全一致
+        query += ' AND numbers = ?';
+        params.push(searchNumber);
+      } else {
+        // 部分一致の場合
+        query += ' AND (numbers LIKE ? OR numbers LIKE ? OR numbers LIKE ? OR numbers LIKE ?)';
+        // 先頭、末尾、中間での部分一致を検索
+        params.push(`${searchNumber}%`);  // 先頭一致
+        params.push(`%${searchNumber}`);  // 末尾一致
+        params.push(`%${searchNumber}%`); // 中間一致
+        params.push(searchNumber);        // 完全一致（短い数字の場合）
+      }
     }
     
-    if (startDate) {
+    if (startDate && startDate.trim() !== '') {
       query += ' AND date >= ?';
       params.push(startDate);
     }
     
-    if (endDate) {
+    if (endDate && endDate.trim() !== '') {
       query += ' AND date <= ?';
       params.push(endDate);
     }
@@ -70,13 +87,18 @@ app.get('/api/numbers/search', async (req, res) => {
     query += ' ORDER BY id DESC LIMIT ?';
     params.push(parseInt(limit));
     
+    console.log('実行するクエリ:', query);
+    console.log('パラメータ:', params);
+    
     const [rows] = await connection.promise().execute(query, params);
+    
+    console.log('検索結果件数:', rows.length);
     
     await connection.end();
     res.json(rows);
   } catch (err) {
     console.error('検索エラー:', err);
-    res.status(500).json({ error: '検索に失敗しました' });
+    res.status(500).json({ error: '検索に失敗しました', details: err.message });
   }
 });
 
