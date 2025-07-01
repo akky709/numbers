@@ -35,6 +35,8 @@ app.get('/api/numbers', async (req, res) => {
       'SELECT * FROM numbers4 ORDER BY id DESC'
     );
     
+    console.log('全データ取得:', rows.length, '件');
+    
     await connection.end();
     res.json(rows);
   } catch (err) {
@@ -57,21 +59,12 @@ app.get('/api/numbers/search', async (req, res) => {
     // 数字検索の改善
     if (number && number.trim() !== '') {
       const searchNumber = number.trim();
+      console.log('検索する数字:', searchNumber);
       
-      // 完全一致または部分一致で検索
-      if (searchNumber.length === 4) {
-        // 4桁の場合は完全一致
-        query += ' AND numbers = ?';
-        params.push(searchNumber);
-      } else {
-        // 部分一致の場合
-        query += ' AND (numbers LIKE ? OR numbers LIKE ? OR numbers LIKE ? OR numbers LIKE ?)';
-        // 先頭、末尾、中間での部分一致を検索
-        params.push(`${searchNumber}%`);  // 先頭一致
-        params.push(`%${searchNumber}`);  // 末尾一致
-        params.push(`%${searchNumber}%`); // 中間一致
-        params.push(searchNumber);        // 完全一致（短い数字の場合）
-      }
+      // numbersカラムは文字列として保存されているかもしれないので、文字列として検索
+      query += ' AND (CAST(numbers AS CHAR) LIKE ? OR numbers LIKE ?)';
+      params.push(`%${searchNumber}%`);
+      params.push(`%${searchNumber}%`);
     }
     
     if (startDate && startDate.trim() !== '') {
@@ -93,12 +86,42 @@ app.get('/api/numbers/search', async (req, res) => {
     const [rows] = await connection.promise().execute(query, params);
     
     console.log('検索結果件数:', rows.length);
+    if (rows.length > 0) {
+      console.log('最初の3件:', rows.slice(0, 3));
+    }
     
     await connection.end();
     res.json(rows);
   } catch (err) {
     console.error('検索エラー:', err);
     res.status(500).json({ error: '検索に失敗しました', details: err.message });
+  }
+});
+
+// データベース構造確認API（デバッグ用）
+app.get('/api/debug/table-info', async (req, res) => {
+  try {
+    const connection = createConnection();
+    
+    // テーブル構造を確認
+    const [structure] = await connection.promise().execute('DESCRIBE numbers4');
+    
+    // サンプルデータを取得
+    const [sample] = await connection.promise().execute('SELECT * FROM numbers4 LIMIT 5');
+    
+    // データ件数を確認
+    const [count] = await connection.promise().execute('SELECT COUNT(*) as total FROM numbers4');
+    
+    await connection.end();
+    
+    res.json({
+      structure,
+      sample,
+      totalCount: count[0].total
+    });
+  } catch (err) {
+    console.error('デバッグ情報取得エラー:', err);
+    res.status(500).json({ error: 'デバッグ情報の取得に失敗しました', details: err.message });
   }
 });
 

@@ -11,11 +11,24 @@ function DataViewer() {
   });
   const [currentPage, setCurrentPage] = useState(1);
   const [searchPerformed, setSearchPerformed] = useState(false);
+  const [debugInfo, setDebugInfo] = useState(null);
   const itemsPerPage = 20;
 
   useEffect(() => {
     fetchData();
+    fetchDebugInfo();
   }, []);
+
+  const fetchDebugInfo = async () => {
+    try {
+      const response = await fetch('http://localhost:3001/api/debug/table-info');
+      const result = await response.json();
+      setDebugInfo(result);
+      console.log('デバッグ情報:', result);
+    } catch (err) {
+      console.error('デバッグ情報取得エラー:', err);
+    }
+  };
 
   const fetchData = async (isSearch = false) => {
     setLoading(true);
@@ -159,6 +172,25 @@ function DataViewer() {
     <div className="card">
       <h2>データ検索・閲覧</h2>
       
+      {debugInfo && (
+        <div className="debug-info">
+          <h4>データベース情報</h4>
+          <p>総データ件数: {debugInfo.totalCount}件</p>
+          {debugInfo.sample && debugInfo.sample.length > 0 && (
+            <div>
+              <p>サンプルデータ:</p>
+              <ul>
+                {debugInfo.sample.slice(0, 3).map((item, index) => (
+                  <li key={index}>
+                    第{item.id}回 - {item.date} - {item.numbers}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
+      
       <form onSubmit={handleSearch} className="search-form">
         <div className="search-grid">
           <div className="form-group">
@@ -168,11 +200,11 @@ function DataViewer() {
               id="number"
               value={searchParams.number}
               onChange={(e) => setSearchParams({...searchParams, number: e.target.value})}
-              placeholder="例: 1234（完全一致）または 12（部分一致）"
+              placeholder="例: 1234 または 12"
               className="form-input"
             />
             <small className="form-help">
-              4桁入力で完全一致、1-3桁で部分一致検索
+              数字を入力すると部分一致で検索します
             </small>
           </div>
           
@@ -220,6 +252,9 @@ function DataViewer() {
           </button>
           <button type="button" onClick={handleReset} className="btn btn-secondary">
             リセット
+          </button>
+          <button type="button" onClick={fetchDebugInfo} className="btn btn-secondary">
+            DB情報更新
           </button>
         </div>
       </form>
@@ -307,6 +342,30 @@ function DataViewer() {
       )}
 
       <style jsx>{`
+        .debug-info {
+          background: #f0f8ff;
+          border: 1px solid #b0d4f1;
+          border-radius: 8px;
+          padding: 1rem;
+          margin-bottom: 1rem;
+          font-size: 0.9rem;
+        }
+
+        .debug-info h4 {
+          margin: 0 0 0.5rem 0;
+          color: #2c5aa0;
+        }
+
+        .debug-info ul {
+          margin: 0.5rem 0 0 1rem;
+          padding: 0;
+        }
+
+        .debug-info li {
+          margin-bottom: 0.25rem;
+          font-family: 'Courier New', monospace;
+        }
+
         .search-form {
           background: rgba(102, 126, 234, 0.05);
           padding: 1.5rem;
@@ -356,6 +415,7 @@ function DataViewer() {
         .search-buttons {
           display: flex;
           gap: 1rem;
+          flex-wrap: wrap;
         }
 
         .btn-secondary {
