@@ -171,13 +171,14 @@ function LineChart({ data }) {
             onChange={(e) => setGranularity(parseInt(e.target.value))}
             className="granularity-select"
           >
+            <option value={10}>10回</option>
             <option value={50}>50回</option>
             <option value={100}>100回</option>
           </select>
         </div>
       </div>
       
-      <div style={{ height: '800px', marginTop: '1rem' }}>
+      <div style={{ height: '1200px', marginTop: '1rem' }}>
         <Line data={chartData} options={options} />
       </div>
       
