@@ -30,19 +30,16 @@ function LineChart({ data }) {
     // 指定された回数分のデータを使用（逆順にして時系列順にする）
     const recentData = data.slice(0, granularity).reverse();
     
-    const labels = recentData.map(item => parseInt(item.numbers.toString().padStart(4, '0')[0]));
+    const labels = recentData.map(item => `第${item.id}回`);
     
     // 各桁のデータセットを作成
     const datasets = [];
     const colors = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0'];
     
     for (let digit = 0; digit < 4; digit++) {
-      const digitData = recentData.map((item, index) => {
+      const digitData = recentData.map(item => {
         const numbers = item.numbers.toString().padStart(4, '0');
-        return {
-          x: parseInt(numbers[digit]),
-          y: item.id
-        };
+        return parseInt(numbers[digit]);
       });
       
       datasets.push({
@@ -50,14 +47,15 @@ function LineChart({ data }) {
         data: digitData,
         borderColor: colors[digit],
         backgroundColor: colors[digit] + '20',
-        tension: 0.1,
-        pointRadius: 3,
-        pointHoverRadius: 5,
+        tension: 0.4,
+        pointRadius: 4,
+        pointHoverRadius: 6,
         borderWidth: 2,
       });
     }
 
     return {
+      labels,
       datasets,
     };
   }, [data, granularity]);
@@ -82,26 +80,41 @@ function LineChart({ data }) {
         },
       },
       tooltip: {
-        mode: 'nearest',
+        mode: 'index',
         intersect: false,
         backgroundColor: 'rgba(0, 0, 0, 0.8)',
         titleColor: 'white',
         bodyColor: 'white',
         borderColor: 'rgba(255, 255, 255, 0.2)',
         borderWidth: 1,
-        callbacks: {
-          title: function(context) {
-            return `第${context[0].parsed.y}回`;
-          },
-          label: function(context) {
-            return `${context.dataset.label}: ${context.parsed.x}`;
-          }
-        }
       },
     },
     scales: {
       x: {
-        type: 'linear',
+        display: true,
+        title: {
+          display: true,
+          text: '抽選回数',
+          font: {
+            size: 14,
+            weight: 'bold',
+          },
+        },
+        ticks: {
+          maxTicksLimit: 20,
+          callback: function(value, index) {
+            // 一定間隔でラベルを表示
+            if (granularity <= 10 || index % Math.ceil(granularity / 10) === 0) {
+              return this.getLabelForValue(value);
+            }
+            return '';
+          }
+        },
+        grid: {
+          color: 'rgba(0, 0, 0, 0.1)',
+        },
+      },
+      y: {
         display: true,
         title: {
           display: true,
@@ -115,37 +128,15 @@ function LineChart({ data }) {
         max: 9,
         ticks: {
           stepSize: 1,
-          callback: function(value) {
-            return value;
-          }
         },
         grid: {
           color: 'rgba(0, 0, 0, 0.1)',
         },
-      },
-      y: {
-        display: true,
-        title: {
-          display: true,
-          text: '抽選回数',
-          font: {
-            size: 14,
-            weight: 'bold',
-          },
-        },
-        grid: {
-          color: 'rgba(0, 0, 0, 0.1)',
-        },
-        ticks: {
-          callback: function(value) {
-            return `第${value}回`;
-          }
-        }
       },
     },
     interaction: {
       mode: 'nearest',
-      axis: 'xy',
+      axis: 'x',
       intersect: false,
     },
   };
@@ -178,12 +169,14 @@ function LineChart({ data }) {
         </div>
       </div>
       
-      <div style={{ height: '1200px', marginTop: '1rem' }}>
-        <Line data={chartData} options={options} />
+      <div className="chart-container">
+        <div className="chart-wrapper" style={{ width: `${Math.max(800, granularity * 15)}px`, height: '600px' }}>
+          <Line data={chartData} options={options} />
+        </div>
       </div>
       
       <div className="chart-info">
-        <p>縦軸に抽選回数、横軸に数字を配置した履歴チャートです。各桁の数字の変化パターンを縦長の表示で確認できます。</p>
+        <p>横軸に抽選回数、縦軸に数字を配置した履歴チャートです。各桁の数字の変化パターンを横スクロールで確認できます。</p>
       </div>
       
       <style jsx>{`
@@ -230,6 +223,19 @@ function LineChart({ data }) {
           box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
+        .chart-container {
+          overflow-x: auto;
+          overflow-y: hidden;
+          border: 1px solid #e2e8f0;
+          border-radius: 8px;
+          background: white;
+          padding: 1rem;
+        }
+
+        .chart-wrapper {
+          min-width: 800px;
+        }
+
         .chart-info {
           margin-top: 1rem;
           padding: 1rem;
@@ -248,6 +254,10 @@ function LineChart({ data }) {
           .granularity-controls {
             align-self: stretch;
             justify-content: space-between;
+          }
+          
+          .chart-container {
+            padding: 0.5rem;
           }
         }
       `}</style>
