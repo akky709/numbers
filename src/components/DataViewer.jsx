@@ -33,10 +33,18 @@ function DataViewer() {
       
       const response = await fetch(url);
       const result = await response.json();
-      setData(result);
+      
+      // データが配列であることを確認
+      if (Array.isArray(result)) {
+        setData(result);
+      } else {
+        console.error('取得したデータが配列ではありません:', result);
+        setData([]);
+      }
       setCurrentPage(1);
     } catch (err) {
       console.error('データ取得エラー:', err);
+      setData([]);
     } finally {
       setLoading(false);
     }
@@ -58,12 +66,16 @@ function DataViewer() {
   };
 
   const paginatedData = useMemo(() => {
+    // dataが配列であることを確認してからsliceを実行
+    if (!Array.isArray(data)) {
+      return [];
+    }
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
     return data.slice(startIndex, endIndex);
   }, [data, currentPage]);
 
-  const totalPages = Math.ceil(data.length / itemsPerPage);
+  const totalPages = Math.ceil((Array.isArray(data) ? data.length : 0) / itemsPerPage);
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -184,7 +196,7 @@ function DataViewer() {
       </form>
 
       <div className="data-info">
-        <p>検索結果: {data.length}件</p>
+        <p>検索結果: {Array.isArray(data) ? data.length : 0}件</p>
       </div>
 
       {loading ? (
