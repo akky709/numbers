@@ -1,7 +1,6 @@
-import React from 'react';
-import './QuickStats.css';
+import './QuickStats.css'
 
-function QuickStats() {
+export default function QuickStats() {
   // サンプル統計データ
   const stats = {
     totalDraws: 6234,
@@ -15,7 +14,7 @@ function QuickStats() {
       coldNumbers: ['0', '1', '4', '6'],
       lastUpdate: '2025-01-15'
     }
-  };
+  }
 
   return (
     <div className="quick-stats">
@@ -117,7 +116,5 @@ function QuickStats() {
         </div>
       </div>
     </div>
-  );
+  )
 }
-
-export default QuickStats;

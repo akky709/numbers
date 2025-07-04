@@ -1,8 +1,7 @@
-import React from 'react';
-import './Footer.css';
+import './Footer.css'
 
-function Footer() {
-  const currentYear = new Date().getFullYear();
+export default function Footer() {
+  const currentYear = new Date().getFullYear()
 
   return (
     <footer className="footer">
@@ -51,7 +50,5 @@ function Footer() {
         </div>
       </div>
     </footer>
-  );
+  )
 }
-
-export default Footer;

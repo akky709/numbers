@@ -1,21 +1,21 @@
-import React from 'react';
-import './LatestResults.css';
+import Link from 'next/link'
+import './LatestResults.css'
 
-function LatestResults() {
+export default function LatestResults() {
   // サンプルデータ（実際のAPIから取得する予定）
   const latestNumbers3 = {
     drawNumber: 6234,
     date: '2025-01-15',
     numbers: '739',
     type: 'ストレート'
-  };
+  }
 
   const latestNumbers4 = {
     drawNumber: 6234,
     date: '2025-01-15',
     numbers: '7392',
     type: 'ストレート'
-  };
+  }
 
   const recentResults = [
     { date: '2025-01-14', numbers3: '582', numbers4: '5821' },
@@ -23,12 +23,12 @@ function LatestResults() {
     { date: '2025-01-12', numbers3: '367', numbers4: '3675' },
     { date: '2025-01-11', numbers3: '428', numbers4: '4289' },
     { date: '2025-01-10', numbers3: '051', numbers4: '0516' },
-  ];
+  ]
 
-  const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return `${date.getMonth() + 1}/${date.getDate()}`;
-  };
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString)
+    return `${date.getMonth() + 1}/${date.getDate()}`
+  }
 
   return (
     <div className="latest-results">
@@ -101,14 +101,12 @@ function LatestResults() {
             ))}
           </div>
           <div className="card-footer">
-            <a href="/numbers4" className="btn btn-outline">
+            <Link href="/numbers4" className="btn btn-outline">
               過去の当選番号をもっと見る
-            </a>
+            </Link>
           </div>
         </div>
       </div>
     </div>
-  );
+  )
 }
-
-export default LatestResults;

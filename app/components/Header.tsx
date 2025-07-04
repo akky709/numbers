@@ -1,46 +1,49 @@
-import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import './Header.css';
+'use client'
 
-function Header() {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const location = useLocation();
+import { useState } from 'react'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+import './Header.css'
 
-  const isActive = (path) => location.pathname === path;
+export default function Header() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const pathname = usePathname()
+
+  const isActive = (path: string) => pathname === path
 
   return (
     <header className="header">
       <div className="container">
         <div className="header-content">
-          <Link to="/" className="logo">
+          <Link href="/" className="logo">
             <span className="logo-icon">📊</span>
             <span className="logo-text">Numbers Analytics</span>
           </Link>
           
           <nav className={`nav ${isMenuOpen ? 'nav-open' : ''}`}>
             <Link 
-              to="/" 
+              href="/" 
               className={`nav-link ${isActive('/') ? 'active' : ''}`}
               onClick={() => setIsMenuOpen(false)}
             >
               ホーム
             </Link>
             <Link 
-              to="/numbers3" 
+              href="/numbers3" 
               className={`nav-link ${isActive('/numbers3') ? 'active' : ''}`}
               onClick={() => setIsMenuOpen(false)}
             >
               ナンバーズ3
             </Link>
             <Link 
-              to="/numbers4" 
+              href="/numbers4" 
               className={`nav-link ${isActive('/numbers4') ? 'active' : ''}`}
               onClick={() => setIsMenuOpen(false)}
             >
               ナンバーズ4
             </Link>
             <Link 
-              to="/about" 
+              href="/about" 
               className={`nav-link ${isActive('/about') ? 'active' : ''}`}
               onClick={() => setIsMenuOpen(false)}
             >
@@ -60,7 +63,5 @@ function Header() {
         </div>
       </div>
     </header>
-  );
+  )
 }
-
-export default Header;
