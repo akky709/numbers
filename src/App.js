@@ -39,10 +39,9 @@ function App() {
   const handleScrape = async () => {
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:3001/scrape', {
+      await fetch('http://localhost:3001/scrape', {
         method: 'POST'
       });
-      const result = await response.json();
       await fetchData();
       await fetchStats();
     } catch (err) {
