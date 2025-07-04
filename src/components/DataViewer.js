@@ -139,7 +139,6 @@ function DataViewer() {
       );
       if (startPage > 2) {
         pages.push(<span key="ellipsis1" className="pagination-ellipsis">...</span>);
-        )
       }
     }
 
@@ -158,7 +157,6 @@ function DataViewer() {
     if (endPage < totalPages) {
       if (endPage < totalPages - 1) {
         pages.push(<span key="ellipsis2" className="pagination-ellipsis">...</span>);
-        )
       }
       pages.push(
         <button key={totalPages} onClick={() => handlePageChange(totalPages)} className="pagination-btn">
