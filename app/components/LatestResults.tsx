@@ -40,21 +40,31 @@ export default function LatestResults() {
         if (latest3Response.ok) {
           const latest3 = await latest3Response.json()
           setLatestNumbers3(latest3)
+        } else {
+          console.error('Failed to fetch latest Numbers3:', latest3Response.status)
         }
 
         if (latest4Response.ok) {
           const latest4 = await latest4Response.json()
           setLatestNumbers4(latest4)
+        } else {
+          console.error('Failed to fetch latest Numbers4:', latest4Response.status)
         }
 
         if (history3Response.ok) {
           const history3 = await history3Response.json()
+          console.log('Numbers3 history data:', history3)
           setRecentNumbers3(history3)
+        } else {
+          console.error('Failed to fetch Numbers3 history:', history3Response.status)
         }
 
         if (history4Response.ok) {
           const history4 = await history4Response.json()
+          console.log('Numbers4 history data:', history4)
           setRecentNumbers4(history4)
+        } else {
+          console.error('Failed to fetch Numbers4 history:', history4Response.status)
         }
 
       } catch (err) {
@@ -167,7 +177,7 @@ export default function LatestResults() {
               <span>ナンバーズ4</span>
             </div>
             {Math.max(recentNumbers3.length, recentNumbers4.length) > 0 ? (
-              Array.from({ length: Math.max(recentNumbers3.length, recentNumbers4.length) }).map((_, index) => {
+              Array.from({ length: Math.min(Math.max(recentNumbers3.length, recentNumbers4.length), 5) }).map((_, index) => {
                 const numbers3Item = recentNumbers3[index]
                 const numbers4Item = recentNumbers4[index]
                 const displayDate = numbers3Item?.date || numbers4Item?.date || ''
@@ -178,24 +188,24 @@ export default function LatestResults() {
                     <div className="numbers">
                       {numbers3Item ? numbers3Item.numbers.split('').map((digit, i) => (
                         <span key={i} className="mini-ball">{digit}</span>
-                      )) : <span>-</span>}
+                      )) : <span style={{ color: '#718096', fontSize: '12px' }}>データなし</span>}
                     </div>
                     <div className="numbers">
                       {numbers4Item ? numbers4Item.numbers.split('').map((digit, i) => (
                         <span key={i} className="mini-ball">{digit}</span>
-                      )) : <span>-</span>}
+                      )) : <span style={{ color: '#718096', fontSize: '12px' }}>データなし</span>}
                     </div>
                   </div>
                 )
               })
             ) : (
               <div className="table-row">
-                <span className="date">-</span>
+                <span className="date" style={{ color: '#718096' }}>データがありません</span>
                 <div className="numbers">
-                  <span>データなし</span>
+                  <span style={{ color: '#718096', fontSize: '12px' }}>データなし</span>
                 </div>
                 <div className="numbers">
-                  <span>データなし</span>
+                  <span style={{ color: '#718096', fontSize: '12px' }}>データなし</span>
                 </div>
               </div>
             )}

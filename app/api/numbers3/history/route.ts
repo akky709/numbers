@@ -6,7 +6,9 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url)
     const limit = parseInt(searchParams.get('limit') || '100')
     
+    console.log('Fetching Numbers3 history with limit:', limit)
     const history = await getNumbers3History(limit)
+    console.log('Numbers3 history result:', history)
     
     return NextResponse.json(history)
   } catch (error) {

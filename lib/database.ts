@@ -60,10 +60,12 @@ export async function getLatestNumbers4(): Promise<Numbers4Result | null> {
 // ナンバーズ3の過去の結果を取得
 export async function getNumbers3History(limit: number = 100): Promise<Numbers3Result[]> {
   try {
+    console.log('Executing Numbers3 history query with limit:', limit)
     const [rows] = await pool.execute(
       'SELECT * FROM numbers3 ORDER BY date DESC, id DESC LIMIT ?',
       [limit]
     )
+    console.log('Numbers3 history query result:', rows)
     return rows as Numbers3Result[]
   } catch (error) {
     console.error('Error fetching Numbers3 history:', error)
@@ -74,10 +76,12 @@ export async function getNumbers3History(limit: number = 100): Promise<Numbers3R
 // ナンバーズ4の過去の結果を取得
 export async function getNumbers4History(limit: number = 100): Promise<Numbers4Result[]> {
   try {
+    console.log('Executing Numbers4 history query with limit:', limit)
     const [rows] = await pool.execute(
       'SELECT * FROM numbers4 ORDER BY date DESC, id DESC LIMIT ?',
       [limit]
     )
+    console.log('Numbers4 history query result:', rows)
     return rows as Numbers4Result[]
   } catch (error) {
     console.error('Error fetching Numbers4 history:', error)
