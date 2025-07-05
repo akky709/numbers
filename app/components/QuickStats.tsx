@@ -84,29 +84,29 @@ export default function QuickStats() {
         {/* ナンバーズ3統計 */}
         <div className="card">
           <div className="card-header">
-            <h3>ナンバーズ3 - ホット＆コールド</h3>
+            <h3>ナンバーズ3 - 直近10回の分析</h3>
             <span className="update-time">更新: {currentDate}</span>
           </div>
           <div className="card-content">
             <div className="hot-cold-section">
               <div className="hot-section">
-                <h4 className="section-title hot">🔥 ホット数字</h4>
+                <h4 className="section-title hot">🔥 よく見かける数字</h4>
                 <div className="number-list">
                   {numbers3Hot.map((number, index) => (
                     <span key={index} className="number-tag hot">{number}</span>
                   ))}
                 </div>
-                <p className="section-description">よく出現する数字</p>
+                <p className="section-description">直近10回でよく出現した数字</p>
               </div>
               
               <div className="cold-section">
-                <h4 className="section-title cold">❄️ コールド数字</h4>
+                <h4 className="section-title cold">❄️ あまり見かけない数字</h4>
                 <div className="number-list">
                   {numbers3Cold.map((number, index) => (
                     <span key={index} className="number-tag cold">{number}</span>
                   ))}
                 </div>
-                <p className="section-description">出現頻度が低い数字</p>
+                <p className="section-description">直近10回で出現頻度が低い数字</p>
               </div>
             </div>
           </div>
@@ -115,29 +115,29 @@ export default function QuickStats() {
         {/* ナンバーズ4統計 */}
         <div className="card">
           <div className="card-header">
-            <h3>ナンバーズ4 - ホット＆コールド</h3>
+            <h3>ナンバーズ4 - 直近10回の分析</h3>
             <span className="update-time">更新: {currentDate}</span>
           </div>
           <div className="card-content">
             <div className="hot-cold-section">
               <div className="hot-section">
-                <h4 className="section-title hot">🔥 ホット数字</h4>
+                <h4 className="section-title hot">🔥 よく見かける数字</h4>
                 <div className="number-list">
                   {numbers4Hot.map((number, index) => (
                     <span key={index} className="number-tag hot">{number}</span>
                   ))}
                 </div>
-                <p className="section-description">よく出現する数字</p>
+                <p className="section-description">直近10回でよく出現した数字</p>
               </div>
               
               <div className="cold-section">
-                <h4 className="section-title cold">❄️ コールド数字</h4>
+                <h4 className="section-title cold">❄️ あまり見かけない数字</h4>
                 <div className="number-list">
                   {numbers4Cold.map((number, index) => (
                     <span key={index} className="number-tag cold">{number}</span>
                   ))}
                 </div>
-                <p className="section-description">出現頻度が低い数字</p>
+                <p className="section-description">直近10回で出現頻度が低い数字</p>
               </div>
             </div>
           </div>

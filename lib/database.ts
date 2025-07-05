@@ -139,6 +139,54 @@ export async function analyzeNumbers4Frequency(): Promise<{ [key: string]: numbe
   }
 }
 
+// 直近10回のナンバーズ3データから数字の出現頻度を分析
+export async function analyzeNumbers3RecentFrequency(): Promise<{ [key: string]: number }> {
+  try {
+    const [rows] = await pool.execute(
+      'SELECT numbers FROM numbers3 ORDER BY date DESC, id DESC LIMIT 10'
+    )
+    const results = rows as { numbers: string }[]
+    
+    const frequency: { [key: string]: number } = {}
+    
+    results.forEach(result => {
+      const digits = result.numbers.split('')
+      digits.forEach(digit => {
+        frequency[digit] = (frequency[digit] || 0) + 1
+      })
+    })
+    
+    return frequency
+  } catch (error) {
+    console.error('Error analyzing Numbers3 recent frequency:', error)
+    return {}
+  }
+}
+
+// 直近10回のナンバーズ4データから数字の出現頻度を分析
+export async function analyzeNumbers4RecentFrequency(): Promise<{ [key: string]: number }> {
+  try {
+    const [rows] = await pool.execute(
+      'SELECT numbers FROM numbers4 ORDER BY date DESC, id DESC LIMIT 10'
+    )
+    const results = rows as { numbers: string }[]
+    
+    const frequency: { [key: string]: number } = {}
+    
+    results.forEach(result => {
+      const digits = result.numbers.split('')
+      digits.forEach(digit => {
+        frequency[digit] = (frequency[digit] || 0) + 1
+      })
+    })
+    
+    return frequency
+  } catch (error) {
+    console.error('Error analyzing Numbers4 recent frequency:', error)
+    return {}
+  }
+}
+
 // データベース接続テスト関数
 export async function testConnection(): Promise<boolean> {
   try {

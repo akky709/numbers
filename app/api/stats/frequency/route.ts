@@ -1,16 +1,16 @@
 import { NextResponse } from 'next/server'
-import { analyzeNumbers3Frequency, analyzeNumbers4Frequency } from '@/lib/database'
+import { analyzeNumbers3RecentFrequency, analyzeNumbers4RecentFrequency } from '@/lib/database'
 
 export async function GET() {
   try {
-    const [numbers3Freq, numbers4Freq] = await Promise.all([
-      analyzeNumbers3Frequency(),
-      analyzeNumbers4Frequency()
+    const [numbers3RecentFreq, numbers4RecentFreq] = await Promise.all([
+      analyzeNumbers3RecentFrequency(),
+      analyzeNumbers4RecentFrequency()
     ])
     
     return NextResponse.json({
-      numbers3: numbers3Freq,
-      numbers4: numbers4Freq
+      numbers3: numbers3RecentFreq,
+      numbers4: numbers4RecentFreq
     })
   } catch (error) {
     console.error('API Error:', error)
