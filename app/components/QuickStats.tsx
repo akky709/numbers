@@ -1,20 +1,89 @@
+'use client'
+
+import { useState, useEffect } from 'react'
 import './QuickStats.css'
 
+interface FrequencyData {
+  numbers3: { [key: string]: number }
+  numbers4: { [key: string]: number }
+}
+
 export default function QuickStats() {
-  // サンプル統計データ
-  const stats = {
-    totalDraws: 6234,
-    numbers3: {
-      hotNumbers: ['7', '3', '9'],
-      coldNumbers: ['0', '1', '4'],
-      lastUpdate: '2025-01-15'
-    },
-    numbers4: {
-      hotNumbers: ['7', '3', '9', '2'],
-      coldNumbers: ['0', '1', '4', '6'],
-      lastUpdate: '2025-01-15'
+  const [frequencyData, setFrequencyData] = useState<FrequencyData | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const fetchFrequencyData = async () => {
+      try {
+        setLoading(true)
+        const response = await fetch('/api/stats/frequency')
+        
+        if (response.ok) {
+          const data = await response.json()
+          setFrequencyData(data)
+        } else {
+          setError('統計データの取得に失敗しました')
+        }
+      } catch (err) {
+        setError('統計データの取得に失敗しました')
+        console.error('Error fetching frequency data:', err)
+      } finally {
+        setLoading(false)
+      }
     }
+
+    fetchFrequencyData()
+  }, [])
+
+  const getHotNumbers = (frequency: { [key: string]: number }, count: number = 3) => {
+    return Object.entries(frequency)
+      .sort(([,a], [,b]) => b - a)
+      .slice(0, count)
+      .map(([number]) => number)
   }
+
+  const getColdNumbers = (frequency: { [key: string]: number }, count: number = 3) => {
+    return Object.entries(frequency)
+      .sort(([,a], [,b]) => a - b)
+      .slice(0, count)
+      .map(([number]) => number)
+  }
+
+  const getTotalDraws = (frequency: { [key: string]: number }) => {
+    const values = Object.values(frequency)
+    return values.length > 0 ? Math.max(...values) : 0
+  }
+
+  if (loading) {
+    return (
+      <div className="quick-stats">
+        <div className="text-center">
+          <p>統計データを読み込み中...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error || !frequencyData) {
+    return (
+      <div className="quick-stats">
+        <div className="text-center">
+          <p style={{ color: '#e53e3e' }}>{error || '統計データがありません'}</p>
+        </div>
+      </div>
+    )
+  }
+
+  const numbers3Hot = getHotNumbers(frequencyData.numbers3, 3)
+  const numbers3Cold = getColdNumbers(frequencyData.numbers3, 3)
+  const numbers4Hot = getHotNumbers(frequencyData.numbers4, 4)
+  const numbers4Cold = getColdNumbers(frequencyData.numbers4, 4)
+  const totalDraws3 = getTotalDraws(frequencyData.numbers3)
+  const totalDraws4 = getTotalDraws(frequencyData.numbers4)
+  const maxTotalDraws = Math.max(totalDraws3, totalDraws4)
+
+  const currentDate = new Date().toISOString().split('T')[0]
 
   return (
     <div className="quick-stats">
@@ -22,7 +91,7 @@ export default function QuickStats() {
         <div className="stat-card">
           <div className="stat-icon">🎯</div>
           <div className="stat-content">
-            <h3 className="stat-number">{stats.totalDraws.toLocaleString()}</h3>
+            <h3 className="stat-number">{maxTotalDraws.toLocaleString()}</h3>
             <p className="stat-label">総抽選回数</p>
           </div>
         </div>
@@ -38,7 +107,7 @@ export default function QuickStats() {
         <div className="stat-card">
           <div className="stat-icon">🔥</div>
           <div className="stat-content">
-            <h3 className="stat-number">10</h3>
+            <h3 className="stat-number">{numbers3Hot.length + numbers4Hot.length}</h3>
             <p className="stat-label">ホット数字</p>
           </div>
         </div>
@@ -46,7 +115,7 @@ export default function QuickStats() {
         <div className="stat-card">
           <div className="stat-icon">❄️</div>
           <div className="stat-content">
-            <h3 className="stat-number">10</h3>
+            <h3 className="stat-number">{numbers3Cold.length + numbers4Cold.length}</h3>
             <p className="stat-label">コールド数字</p>
           </div>
         </div>
@@ -57,14 +126,14 @@ export default function QuickStats() {
         <div className="card">
           <div className="card-header">
             <h3>ナンバーズ3 - ホット＆コールド</h3>
-            <span className="update-time">更新: {stats.numbers3.lastUpdate}</span>
+            <span className="update-time">更新: {currentDate}</span>
           </div>
           <div className="card-content">
             <div className="hot-cold-section">
               <div className="hot-section">
                 <h4 className="section-title hot">🔥 ホット数字</h4>
                 <div className="number-list">
-                  {stats.numbers3.hotNumbers.map((number, index) => (
+                  {numbers3Hot.map((number, index) => (
                     <span key={index} className="number-tag hot">{number}</span>
                   ))}
                 </div>
@@ -74,7 +143,7 @@ export default function QuickStats() {
               <div className="cold-section">
                 <h4 className="section-title cold">❄️ コールド数字</h4>
                 <div className="number-list">
-                  {stats.numbers3.coldNumbers.map((number, index) => (
+                  {numbers3Cold.map((number, index) => (
                     <span key={index} className="number-tag cold">{number}</span>
                   ))}
                 </div>
@@ -88,14 +157,14 @@ export default function QuickStats() {
         <div className="card">
           <div className="card-header">
             <h3>ナンバーズ4 - ホット＆コールド</h3>
-            <span className="update-time">更新: {stats.numbers4.lastUpdate}</span>
+            <span className="update-time">更新: {currentDate}</span>
           </div>
           <div className="card-content">
             <div className="hot-cold-section">
               <div className="hot-section">
                 <h4 className="section-title hot">🔥 ホット数字</h4>
                 <div className="number-list">
-                  {stats.numbers4.hotNumbers.map((number, index) => (
+                  {numbers4Hot.map((number, index) => (
                     <span key={index} className="number-tag hot">{number}</span>
                   ))}
                 </div>
@@ -105,7 +174,7 @@ export default function QuickStats() {
               <div className="cold-section">
                 <h4 className="section-title cold">❄️ コールド数字</h4>
                 <div className="number-list">
-                  {stats.numbers4.coldNumbers.map((number, index) => (
+                  {numbers4Cold.map((number, index) => (
                     <span key={index} className="number-tag cold">{number}</span>
                   ))}
                 </div>
