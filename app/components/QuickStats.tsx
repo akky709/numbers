@@ -50,10 +50,6 @@ export default function QuickStats() {
       .map(([number]) => number)
   }
 
-  const getTotalDraws = (frequency: { [key: string]: number }) => {
-    const values = Object.values(frequency)
-    return values.length > 0 ? Math.max(...values) : 0
-  }
 
   if (loading) {
     return (
