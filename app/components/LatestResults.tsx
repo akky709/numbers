@@ -39,6 +39,7 @@ export default function LatestResults() {
 
         if (latest3Response.ok) {
           const latest3 = await latest3Response.json()
+          console.log('Latest Numbers3:', latest3)
           setLatestNumbers3(latest3)
         } else {
           console.error('Failed to fetch latest Numbers3:', latest3Response.status)
@@ -46,6 +47,7 @@ export default function LatestResults() {
 
         if (latest4Response.ok) {
           const latest4 = await latest4Response.json()
+          console.log('Latest Numbers4:', latest4)
           setLatestNumbers4(latest4)
         } else {
           console.error('Failed to fetch latest Numbers4:', latest4Response.status)
@@ -57,6 +59,8 @@ export default function LatestResults() {
           setRecentNumbers3(history3)
         } else {
           console.error('Failed to fetch Numbers3 history:', history3Response.status)
+          const errorText = await history3Response.text()
+          console.error('Error response:', errorText)
         }
 
         if (history4Response.ok) {
@@ -65,6 +69,8 @@ export default function LatestResults() {
           setRecentNumbers4(history4)
         } else {
           console.error('Failed to fetch Numbers4 history:', history4Response.status)
+          const errorText = await history4Response.text()
+          console.error('Error response:', errorText)
         }
 
       } catch (err) {
@@ -167,7 +173,7 @@ export default function LatestResults() {
       {/* 過去の結果 */}
       <div className="card">
         <div className="card-header">
-          <h3>過去の当選番号</h3>
+          <h3>過去の当選番号（最新5件）</h3>
         </div>
         <div className="card-content">
           <div className="recent-results-table">

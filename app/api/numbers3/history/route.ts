@@ -8,7 +8,7 @@ export async function GET(request: Request) {
     
     console.log('Fetching Numbers3 history with limit:', limit)
     const history = await getNumbers3History(limit)
-    console.log('Numbers3 history result:', history)
+    console.log('Numbers3 history result count:', history.length)
     
     return NextResponse.json(history)
   } catch (error) {

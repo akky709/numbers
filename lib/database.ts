@@ -16,7 +16,7 @@ const pool = mysql.createPool(dbConfig)
 
 export default pool
 
-// 型定義（指定されたカラム構造に合わせて更新）
+// 型定義（実際のテーブル構造に合わせて更新）
 export interface Numbers3Result {
   id: number
   date: string
@@ -65,7 +65,7 @@ export async function getNumbers3History(limit: number = 100): Promise<Numbers3R
       'SELECT * FROM numbers3 ORDER BY date DESC, id DESC LIMIT ?',
       [limit]
     )
-    console.log('Numbers3 history query result:', rows)
+    console.log('Numbers3 history query result count:', (rows as any[]).length)
     return rows as Numbers3Result[]
   } catch (error) {
     console.error('Error fetching Numbers3 history:', error)
@@ -81,7 +81,7 @@ export async function getNumbers4History(limit: number = 100): Promise<Numbers4R
       'SELECT * FROM numbers4 ORDER BY date DESC, id DESC LIMIT ?',
       [limit]
     )
-    console.log('Numbers4 history query result:', rows)
+    console.log('Numbers4 history query result count:', (rows as any[]).length)
     return rows as Numbers4Result[]
   } catch (error) {
     console.error('Error fetching Numbers4 history:', error)
