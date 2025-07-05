@@ -132,3 +132,17 @@ export async function analyzeNumbers4Frequency(): Promise<{ [key: string]: numbe
     return {}
   }
 }
+
+// データベース接続テスト関数
+export async function testConnection(): Promise<boolean> {
+  try {
+    const connection = await pool.getConnection()
+    await connection.ping()
+    connection.release()
+    console.log('Database connection successful')
+    return true
+  } catch (error) {
+    console.error('Database connection failed:', error)
+    return false
+  }
+}
