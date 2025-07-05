@@ -16,28 +16,24 @@ const pool = mysql.createPool(dbConfig)
 
 export default pool
 
-// 型定義
+// 型定義（指定されたカラム構造に合わせて更新）
 export interface Numbers3Result {
   id: number
-  draw_number: number
   date: string
   numbers: string
-  type?: string
 }
 
 export interface Numbers4Result {
   id: number
-  draw_number: number
   date: string
   numbers: string
-  type?: string
 }
 
 // ナンバーズ3の最新結果を取得
 export async function getLatestNumbers3(): Promise<Numbers3Result | null> {
   try {
     const [rows] = await pool.execute(
-      'SELECT * FROM numbers3 ORDER BY draw_number DESC LIMIT 1'
+      'SELECT * FROM numbers3 ORDER BY date DESC, id DESC LIMIT 1'
     )
     const results = rows as Numbers3Result[]
     return results.length > 0 ? results[0] : null
@@ -51,7 +47,7 @@ export async function getLatestNumbers3(): Promise<Numbers3Result | null> {
 export async function getLatestNumbers4(): Promise<Numbers4Result | null> {
   try {
     const [rows] = await pool.execute(
-      'SELECT * FROM numbers4 ORDER BY draw_number DESC LIMIT 1'
+      'SELECT * FROM numbers4 ORDER BY date DESC, id DESC LIMIT 1'
     )
     const results = rows as Numbers4Result[]
     return results.length > 0 ? results[0] : null
@@ -65,7 +61,7 @@ export async function getLatestNumbers4(): Promise<Numbers4Result | null> {
 export async function getNumbers3History(limit: number = 100): Promise<Numbers3Result[]> {
   try {
     const [rows] = await pool.execute(
-      'SELECT * FROM numbers3 ORDER BY draw_number DESC LIMIT ?',
+      'SELECT * FROM numbers3 ORDER BY date DESC, id DESC LIMIT ?',
       [limit]
     )
     return rows as Numbers3Result[]
@@ -79,7 +75,7 @@ export async function getNumbers3History(limit: number = 100): Promise<Numbers3R
 export async function getNumbers4History(limit: number = 100): Promise<Numbers4Result[]> {
   try {
     const [rows] = await pool.execute(
-      'SELECT * FROM numbers4 ORDER BY draw_number DESC LIMIT ?',
+      'SELECT * FROM numbers4 ORDER BY date DESC, id DESC LIMIT ?',
       [limit]
     )
     return rows as Numbers4Result[]
