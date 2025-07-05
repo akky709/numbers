@@ -61,9 +61,10 @@ export async function getLatestNumbers4(): Promise<Numbers4Result | null> {
 export async function getNumbers3History(limit: number = 100): Promise<Numbers3Result[]> {
   try {
     console.log('Executing Numbers3 history query with limit:', limit)
+    // limitパラメータを数値として確実に渡す
     const [rows] = await pool.execute(
-      'SELECT * FROM numbers3 ORDER BY date DESC, id DESC LIMIT ?',
-      [limit]
+      `SELECT * FROM numbers3 ORDER BY date DESC, id DESC LIMIT ${parseInt(limit.toString())}`,
+      []
     )
     console.log('Numbers3 history query result count:', (rows as any[]).length)
     return rows as Numbers3Result[]
@@ -77,9 +78,10 @@ export async function getNumbers3History(limit: number = 100): Promise<Numbers3R
 export async function getNumbers4History(limit: number = 100): Promise<Numbers4Result[]> {
   try {
     console.log('Executing Numbers4 history query with limit:', limit)
+    // limitパラメータを数値として確実に渡す
     const [rows] = await pool.execute(
-      'SELECT * FROM numbers4 ORDER BY date DESC, id DESC LIMIT ?',
-      [limit]
+      `SELECT * FROM numbers4 ORDER BY date DESC, id DESC LIMIT ${parseInt(limit.toString())}`,
+      []
     )
     console.log('Numbers4 history query result count:', (rows as any[]).length)
     return rows as Numbers4Result[]
