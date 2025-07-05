@@ -79,48 +79,11 @@ export default function QuickStats() {
   const numbers3Cold = getColdNumbers(frequencyData.numbers3, 3)
   const numbers4Hot = getHotNumbers(frequencyData.numbers4, 4)
   const numbers4Cold = getColdNumbers(frequencyData.numbers4, 4)
-  const totalDraws3 = getTotalDraws(frequencyData.numbers3)
-  const totalDraws4 = getTotalDraws(frequencyData.numbers4)
-  const maxTotalDraws = Math.max(totalDraws3, totalDraws4)
 
   const currentDate = new Date().toISOString().split('T')[0]
 
   return (
     <div className="quick-stats">
-      <div className="grid grid-4 mb-8">
-        <div className="stat-card">
-          <div className="stat-icon">🎯</div>
-          <div className="stat-content">
-            <h3 className="stat-number">{maxTotalDraws.toLocaleString()}</h3>
-            <p className="stat-label">総抽選回数</p>
-          </div>
-        </div>
-        
-        <div className="stat-card">
-          <div className="stat-icon">📈</div>
-          <div className="stat-content">
-            <h3 className="stat-number">2</h3>
-            <p className="stat-label">分析対象ゲーム</p>
-          </div>
-        </div>
-        
-        <div className="stat-card">
-          <div className="stat-icon">🔥</div>
-          <div className="stat-content">
-            <h3 className="stat-number">{numbers3Hot.length + numbers4Hot.length}</h3>
-            <p className="stat-label">ホット数字</p>
-          </div>
-        </div>
-        
-        <div className="stat-card">
-          <div className="stat-icon">❄️</div>
-          <div className="stat-content">
-            <h3 className="stat-number">{numbers3Cold.length + numbers4Cold.length}</h3>
-            <p className="stat-label">コールド数字</p>
-          </div>
-        </div>
-      </div>
-
       <div className="grid grid-2">
         {/* ナンバーズ3統計 */}
         <div className="card">
