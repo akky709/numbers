@@ -33,6 +33,7 @@ export default function Numbers3Page() {
   const [loading, setLoading] = useState(true)
   const [viewMode, setViewMode] = useState<'recent' | 'all'>('recent')
   const [selectedPeriod, setSelectedPeriod] = useState<number>(50)
+  const [patternFilter, setPatternFilter] = useState<string | null>(null)
 
   useEffect(() => {
     fetchData()
@@ -110,6 +111,32 @@ export default function Numbers3Page() {
     if (intensity > 0.4) return '#fbb040'
     if (intensity > 0.2) return '#68d391'
     return '#4299e1'
+  }
+
+  // パターン判定関数
+  const getPattern = (numbers: string) => {
+    const digits = numbers.split('')
+    const digitCounts = digits.reduce((acc, digit) => {
+      acc[digit] = (acc[digit] || 0) + 1
+      return acc
+    }, {} as { [key: string]: number })
+    
+    const counts = Object.values(digitCounts).sort((a, b) => b - a)
+    
+    if (counts[0] === 3) return 'triple'
+    if (counts[0] === 2) return 'double'
+    return null
+  }
+
+  // パターンでフィルターされたデータ
+  const filteredHistoryData = patternFilter 
+    ? historyData.filter(item => getPattern(item.numbers) === patternFilter)
+    : historyData
+
+  // パターン別カウント
+  const patternCounts = {
+    triple: historyData.filter(item => getPattern(item.numbers) === 'triple').length,
+    double: historyData.filter(item => getPattern(item.numbers) === 'double').length
   }
 
   const maxFrequency = Math.max(...Object.values(frequencyData))
@@ -333,9 +360,44 @@ export default function Numbers3Page() {
             <div className="analysis-card full-width">
               <div className="card-header">
                 <h3>📋 最近の当選履歴</h3>
-                <span className="data-count">最新{Math.min(20, historyData.length)}件</span>
+                <span className="data-count">
+                  {patternFilter ? `${patternFilter}パターン: ${filteredHistoryData.length}件` : `最新${Math.min(20, historyData.length)}件`}
+                </span>
               </div>
               <div className="card-content">
+                {/* パターンフィルター */}
+                <div className="pattern-filters">
+                  <button
+                    className={`filter-btn ${patternFilter === null ? 'active' : ''}`}
+                    onClick={() => setPatternFilter(null)}
+                  >
+                    すべて
+                    <span className="count">{historyData.length}</span>
+                  </button>
+                  <button
+                    className={`filter-btn ${patternFilter === 'triple' ? 'active' : ''}`}
+                    onClick={() => setPatternFilter('triple')}
+                  >
+                    🎯 トリプル
+                    <span className="count">{patternCounts.triple}</span>
+                  </button>
+                  <button
+                    className={`filter-btn ${patternFilter === 'double' ? 'active' : ''}`}
+                    onClick={() => setPatternFilter('double')}
+                  >
+                    🎲 ダブル
+                    <span className="count">{patternCounts.double}</span>
+                  </button>
+                  {patternFilter && (
+                    <button
+                      className="filter-btn clear-filter"
+                      onClick={() => setPatternFilter(null)}
+                    >
+                      ✕ クリア
+                    </button>
+                  )}
+                </div>
+                
                 <div className="history-table">
                   <div className="table-header">
                     <span>抽選日</span>
@@ -345,16 +407,22 @@ export default function Numbers3Page() {
                     <span>一の位</span>
                     <span>合計</span>
                   </div>
-                  {historyData.slice(0, 20).map((item, index) => {
+                  {filteredHistoryData.slice(0, 20).map((item, index) => {
                     const digits = item.numbers.split('')
                     const sum = digits.reduce((acc, digit) => acc + parseInt(digit), 0)
+                    const pattern = getPattern(item.numbers)
                     return (
                       <div key={item.id} className="table-row">
                         <span className="date">{formatDate(item.date)}</span>
-                        <div className="winning-numbers">
+                        <div className="winning-numbers" style={{ display: 'flex', alignItems: 'center' }}>
                           {digits.map((digit, i) => (
                             <span key={i} className="number-ball small">{digit}</span>
                           ))}
+                          {pattern && (
+                            <span className={`pattern-indicator ${pattern}`}>
+                              {pattern === 'triple' ? 'トリプル' : 'ダブル'}
+                            </span>
+                          )}
                         </div>
                         <span className="digit-cell">{digits[0]}</span>
                         <span className="digit-cell">{digits[1]}</span>

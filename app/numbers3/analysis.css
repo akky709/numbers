@@ -444,6 +444,82 @@
   color: #718096;
 }
 
+/* パターンフィルター */
+.pattern-filters {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.filter-btn {
+  padding: 6px 12px;
+  border: 2px solid #e2e8f0;
+  background: white;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #4a5568;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.filter-btn:hover {
+  border-color: #667eea;
+  color: #667eea;
+}
+
+.filter-btn.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-color: transparent;
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.filter-btn .count {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 2px 6px;
+  border-radius: 10px;
+  font-size: 10px;
+  margin-left: 4px;
+}
+
+.filter-btn.active .count {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.clear-filter {
+  color: #e53e3e !important;
+  border-color: #e53e3e !important;
+}
+
+.clear-filter:hover {
+  background: #e53e3e !important;
+  color: white !important;
+}
+
+.pattern-indicator {
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 10px;
+  font-weight: 600;
+  margin-left: 8px;
+}
+
+.pattern-indicator.triple {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  color: white;
+}
+
+.pattern-indicator.double {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  color: white;
+}
+
 /* 履歴テーブル */
 .history-table {
   display: flex;
