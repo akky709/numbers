@@ -123,6 +123,12 @@ export default function Numbers3Page() {
     
     const counts = Object.values(digitCounts).sort((a, b) => b - a)
     
+    // 等差数列チェック
+    const nums = digits.map(d => parseInt(d)).sort((a, b) => a - b)
+    const diff1 = nums[1] - nums[0]
+    const diff2 = nums[2] - nums[1]
+    if (diff1 === diff2 && diff1 !== 0) return 'arithmetic'
+    
     if (counts[0] === 3) return 'triple'
     if (counts[0] === 2) return 'double'
     return null
@@ -135,6 +141,7 @@ export default function Numbers3Page() {
 
   // パターン別カウント
   const patternCounts = {
+    arithmetic: historyData.filter(item => getPattern(item.numbers) === 'arithmetic').length,
     triple: historyData.filter(item => getPattern(item.numbers) === 'triple').length,
     double: historyData.filter(item => getPattern(item.numbers) === 'double').length
   }
@@ -375,6 +382,13 @@ export default function Numbers3Page() {
                     <span className="count">{historyData.length}</span>
                   </button>
                   <button
+                    className={`filter-btn ${patternFilter === 'arithmetic' ? 'active' : ''}`}
+                    onClick={() => setPatternFilter('arithmetic')}
+                  >
+                    📐 等差
+                    <span className="count">{patternCounts.arithmetic}</span>
+                  </button>
+                  <button
                     className={`filter-btn ${patternFilter === 'triple' ? 'active' : ''}`}
                     onClick={() => setPatternFilter('triple')}
                   >
@@ -420,7 +434,7 @@ export default function Numbers3Page() {
                           ))}
                           {pattern && (
                             <span className={`pattern-indicator ${pattern}`}>
-                              {pattern === 'triple' ? 'トリプル' : 'ダブル'}
+                              {pattern === 'arithmetic' ? '等差' : pattern === 'triple' ? 'トリプル' : 'ダブル'}
                             </span>
                           )}
                         </div>

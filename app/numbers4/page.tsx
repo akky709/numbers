@@ -126,6 +126,16 @@ export default function Numbers4Page() {
     
     const counts = Object.values(digitCounts).sort((a, b) => b - a)
     
+    // ミラー（回文）チェック
+    if (digits[0] === digits[3] && digits[1] === digits[2]) return 'mirror'
+    
+    // 等差数列チェック
+    const nums = digits.map(d => parseInt(d)).sort((a, b) => a - b)
+    const diff1 = nums[1] - nums[0]
+    const diff2 = nums[2] - nums[1]
+    const diff3 = nums[3] - nums[2]
+    if (diff1 === diff2 && diff2 === diff3 && diff1 !== 0) return 'arithmetic'
+    
     if (counts[0] === 4) return 'force'
     if (counts[0] === 3) return 'triple'
     if (counts[0] === 2) return 'double'
@@ -139,6 +149,8 @@ export default function Numbers4Page() {
 
   // パターン別カウント
   const patternCounts = {
+    mirror: historyData.filter(item => getPattern(item.numbers) === 'mirror').length,
+    arithmetic: historyData.filter(item => getPattern(item.numbers) === 'arithmetic').length,
     force: historyData.filter(item => getPattern(item.numbers) === 'force').length,
     triple: historyData.filter(item => getPattern(item.numbers) === 'triple').length,
     double: historyData.filter(item => getPattern(item.numbers) === 'double').length
@@ -381,6 +393,20 @@ export default function Numbers4Page() {
                     <span className="count">{historyData.length}</span>
                   </button>
                   <button
+                    className={`filter-btn ${patternFilter === 'mirror' ? 'active' : ''}`}
+                    onClick={() => setPatternFilter('mirror')}
+                  >
+                    🪞 ミラー
+                    <span className="count">{patternCounts.mirror}</span>
+                  </button>
+                  <button
+                    className={`filter-btn ${patternFilter === 'arithmetic' ? 'active' : ''}`}
+                    onClick={() => setPatternFilter('arithmetic')}
+                  >
+                    📐 等差
+                    <span className="count">{patternCounts.arithmetic}</span>
+                  </button>
+                  <button
                     className={`filter-btn ${patternFilter === 'force' ? 'active' : ''}`}
                     onClick={() => setPatternFilter('force')}
                   >
@@ -434,7 +460,10 @@ export default function Numbers4Page() {
                           ))}
                           {pattern && (
                             <span className={`pattern-indicator ${pattern}`}>
-                              {pattern === 'force' ? 'フォース' : pattern === 'triple' ? 'トリプル' : 'ダブル'}
+                              {pattern === 'mirror' ? 'ミラー' : 
+                               pattern === 'arithmetic' ? '等差' :
+                               pattern === 'force' ? 'フォース' : 
+                               pattern === 'triple' ? 'トリプル' : 'ダブル'}
                             </span>
                           )}
                         </div>

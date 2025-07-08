@@ -520,6 +520,11 @@
   color: white;
 }
 
+.pattern-indicator.arithmetic {
+  background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+  color: #2d3748;
+}
+
 /* 履歴テーブル */
 .history-table {
   display: flex;
