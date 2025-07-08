@@ -24,6 +24,7 @@ interface PositionFrequency {
 export default function Numbers3Page() {
   const [historyData, setHistoryData] = useState<Numbers3Data[]>([])
   const [frequencyData, setFrequencyData] = useState<FrequencyData>({})
+  const [sumFrequency, setSumFrequency] = useState<FrequencyData>({})
   const [positionFrequency, setPositionFrequency] = useState<PositionFrequency>({
     position1: {},
     position2: {},
@@ -55,6 +56,7 @@ export default function Numbers3Page() {
 
   const analyzeData = (data: Numbers3Data[]) => {
     const frequency: FrequencyData = {}
+    const sumFreq: FrequencyData = {}
     const posFreq: PositionFrequency = {
       position1: {},
       position2: {},
@@ -69,6 +71,10 @@ export default function Numbers3Page() {
         frequency[digit] = (frequency[digit] || 0) + 1
       })
 
+      // 合計数の頻度
+      const sum = digits.reduce((acc, digit) => acc + parseInt(digit), 0)
+      sumFreq[sum.toString()] = (sumFreq[sum.toString()] || 0) + 1
+
       // 位置別頻度
       if (digits[0]) posFreq.position1[digits[0]] = (posFreq.position1[digits[0]] || 0) + 1
       if (digits[1]) posFreq.position2[digits[1]] = (posFreq.position2[digits[1]] || 0) + 1
@@ -76,6 +82,7 @@ export default function Numbers3Page() {
     })
 
     setFrequencyData(frequency)
+    setSumFrequency(sumFreq)
     setPositionFrequency(posFreq)
   }
 
@@ -106,6 +113,7 @@ export default function Numbers3Page() {
   }
 
   const maxFrequency = Math.max(...Object.values(frequencyData))
+  const maxSumFrequency = Math.max(...Object.values(sumFrequency), 1)
 
   if (loading) {
     return (
