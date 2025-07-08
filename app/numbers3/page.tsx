@@ -34,6 +34,8 @@ export default function Numbers3Page() {
   const [viewMode, setViewMode] = useState<'recent' | 'all'>('recent')
   const [selectedPeriod, setSelectedPeriod] = useState<number>(50)
   const [patternFilter, setPatternFilter] = useState<string | null>(null)
+  const [currentSumTrend, setCurrentSumTrend] = useState<number[]>([])
+  const [previousSumTrend, setPreviousSumTrend] = useState<number[]>([])
 
   useEffect(() => {
     fetchData()
@@ -42,11 +44,23 @@ export default function Numbers3Page() {
   const fetchData = async () => {
     try {
       setLoading(true)
-      const response = await fetch(`/api/numbers3/history?limit=${selectedPeriod}`)
-      if (response.ok) {
-        const data = await response.json()
-        setHistoryData(data)
-        analyzeData(data)
+      
+      // 現在の期間と前回の期間のデータを取得
+      const [currentResponse, previousResponse] = await Promise.all([
+        fetch(`/api/numbers3/history?limit=${selectedPeriod}`),
+        fetch(`/api/numbers3/history?limit=${selectedPeriod * 2}`)
+      ])
+      
+      if (currentResponse.ok && previousResponse.ok) {
+        const currentData = await currentResponse.json()
+        const allData = await previousResponse.json()
+        
+        // 前回期間のデータ（現在の期間を除いた部分）
+        const previousData = allData.slice(selectedPeriod)
+        
+        setHistoryData(currentData)
+        analyzeData(currentData)
+        analyzeTrends(currentData, previousData)
       }
     } catch (error) {
       console.error('Error fetching data:', error)
@@ -85,6 +99,23 @@ export default function Numbers3Page() {
     setFrequencyData(frequency)
     setSumFrequency(sumFreq)
     setPositionFrequency(posFreq)
+  }
+
+  const analyzeTrends = (currentData: Numbers3Data[], previousData: Numbers3Data[]) => {
+    // 現在期間の合計数推移
+    const currentTrend = currentData.reverse().map(item => {
+      const digits = item.numbers.split('')
+      return digits.reduce((acc, digit) => acc + parseInt(digit), 0)
+    })
+    
+    // 前回期間の合計数推移
+    const previousTrend = previousData.reverse().map(item => {
+      const digits = item.numbers.split('')
+      return digits.reduce((acc, digit) => acc + parseInt(digit), 0)
+    })
+    
+    setCurrentSumTrend(currentTrend)
+    setPreviousSumTrend(previousTrend)
   }
 
   const getTopNumbers = (freq: FrequencyData, count: number = 5) => {
@@ -132,6 +163,23 @@ export default function Numbers3Page() {
     if (counts[0] === 3) return 'triple'
     if (counts[0] === 2) return 'double'
     return null
+  }
+
+  // SVGパス生成関数
+  const generatePath = (data: number[], width: number, height: number) => {
+    if (data.length === 0) return ''
+    
+    const maxValue = Math.max(...data, ...previousSumTrend, 27)
+    const minValue = Math.min(...data, ...previousSumTrend, 0)
+    const range = maxValue - minValue || 1
+    
+    const stepX = width / (data.length - 1 || 1)
+    
+    return data.map((value, index) => {
+      const x = index * stepX
+      const y = height - ((value - minValue) / range) * height
+      return `${index === 0 ? 'M' : 'L'} ${x} ${y}`
+    }).join(' ')
   }
 
   // パターンでフィルターされたデータ
@@ -294,6 +342,117 @@ export default function Numbers3Page() {
               </div>
             </div>
 
+            {/* 合計数推移チャート */}
+            <div className="analysis-card">
+              <div className="card-header">
+                <h3>📈 合計数の推移</h3>
+                <span className="data-count">時系列変化</span>
+              </div>
+              <div className="card-content">
+                <div className="sum-trend-chart">
+                  <div className="chart-container">
+                    <svg className="chart-svg" viewBox="0 0 400 200">
+                      {/* グリッド線 */}
+                      {Array.from({ length: 6 }, (_, i) => (
+                        <line
+                          key={`grid-${i}`}
+                          className="chart-grid"
+                          x1="0"
+                          y1={i * 40}
+                          x2="400"
+                          y2={i * 40}
+                        />
+                      ))}
+                      
+                      {/* Y軸 */}
+                      <line className="chart-axis" x1="0" y1="0" x2="0" y2="200" />
+                      
+                      {/* X軸 */}
+                      <line className="chart-axis" x1="0" y1="200" x2="400" y2="200" />
+                      
+                      {/* 前回期間のライン */}
+                      {previousSumTrend.length > 0 && (
+                        <>
+                          <path
+                            className="chart-line-previous"
+                            d={generatePath(previousSumTrend, 400, 200)}
+                          />
+                          {previousSumTrend.map((value, index) => {
+                            const maxValue = Math.max(...currentSumTrend, ...previousSumTrend, 27)
+                            const minValue = Math.min(...currentSumTrend, ...previousSumTrend, 0)
+                            const range = maxValue - minValue || 1
+                            const x = (index / (previousSumTrend.length - 1 || 1)) * 400
+                            const y = 200 - ((value - minValue) / range) * 200
+                            return (
+                              <circle
+                                key={`prev-point-${index}`}
+                                className="chart-point-previous"
+                                cx={x}
+                                cy={y}
+                              />
+                            )
+                          })}
+                        </>
+                      )}
+                      
+                      {/* 現在期間のライン */}
+                      {currentSumTrend.length > 0 && (
+                        <>
+                          <path
+                            className="chart-line-current"
+                            d={generatePath(currentSumTrend, 400, 200)}
+                          />
+                          {currentSumTrend.map((value, index) => {
+                            const maxValue = Math.max(...currentSumTrend, ...previousSumTrend, 27)
+                            const minValue = Math.min(...currentSumTrend, ...previousSumTrend, 0)
+                            const range = maxValue - minValue || 1
+                            const x = (index / (currentSumTrend.length - 1 || 1)) * 400
+                            const y = 200 - ((value - minValue) / range) * 200
+                            return (
+                              <circle
+                                key={`curr-point-${index}`}
+                                className="chart-point-current"
+                                cx={x}
+                                cy={y}
+                              />
+                            )
+                          })}
+                        </>
+                      )}
+                      
+                      {/* Y軸ラベル */}
+                      {Array.from({ length: 6 }, (_, i) => {
+                        const maxValue = Math.max(...currentSumTrend, ...previousSumTrend, 27)
+                        const minValue = Math.min(...currentSumTrend, ...previousSumTrend, 0)
+                        const range = maxValue - minValue || 1
+                        const value = Math.round(minValue + (range * (5 - i)) / 5)
+                        return (
+                          <text
+                            key={`y-label-${i}`}
+                            className="chart-label"
+                            x="-10"
+                            y={i * 40 + 5}
+                            textAnchor="end"
+                          >
+                            {value}
+                          </text>
+                        )
+                      })}
+                    </svg>
+                  </div>
+                </div>
+                <div className="chart-legend">
+                  <div className="legend-item">
+                    <div className="legend-line current"></div>
+                    <span>現在の{selectedPeriod}回</span>
+                  </div>
+                  <div className="legend-item">
+                    <div className="legend-line previous"></div>
+                    <span>前回の{selectedPeriod}回</span>
+                  </div>
+                </div>
+              </div>
+            </div>
             {/* 位置別分析 */}
             <div className="analysis-card">
               <div className="card-header">
