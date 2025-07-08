@@ -130,7 +130,7 @@ export default function Numbers4Page() {
     if (digits[0] === digits[3] && digits[1] === digits[2]) return 'mirror'
     
     // 等差数列チェック
-    const nums = digits.map(d => parseInt(d)).sort((a, b) => a - b)
+    const nums = digits.map(d => parseInt(d))
     const diff1 = nums[1] - nums[0]
     const diff2 = nums[2] - nums[1]
     const diff3 = nums[3] - nums[2]

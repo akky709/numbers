@@ -124,7 +124,7 @@ export default function Numbers3Page() {
     const counts = Object.values(digitCounts).sort((a, b) => b - a)
     
     // 等差数列チェック
-    const nums = digits.map(d => parseInt(d)).sort((a, b) => a - b)
+    const nums = digits.map(d => parseInt(d))
     const diff1 = nums[1] - nums[0]
     const diff2 = nums[2] - nums[1]
     if (diff1 === diff2 && diff1 !== 0) return 'arithmetic'
