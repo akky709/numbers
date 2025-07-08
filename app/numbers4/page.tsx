@@ -208,7 +208,6 @@ export default function Numbers4Page() {
                     const percentage = maxFrequency > 0 ? (freq / maxFrequency) * 100 : 0
                     return (
                       <div key={num} className="frequency-bar">
-                        <div className="bar-label">{num}</div>
                         <div className="bar-container">
                           <div 
                             className="bar-fill"
@@ -218,7 +217,7 @@ export default function Numbers4Page() {
                             }}
                           ></div>
                         </div>
-                        <div className="bar-value">{freq}</div>
+                        <div className="bar-number">{num}</div>
                       </div>
                     )
                   })}
@@ -311,9 +310,11 @@ export default function Numbers4Page() {
                     <span>百の位</span>
                     <span>十の位</span>
                     <span>一の位</span>
+                    <span>合計</span>
                   </div>
                   {historyData.slice(0, 20).map((item, index) => {
                     const digits = item.numbers.split('')
+                    const sum = digits.reduce((acc, digit) => acc + parseInt(digit), 0)
                     return (
                       <div key={item.id} className="table-row">
                         <span className="date">{formatDate(item.date)}</span>
@@ -326,6 +327,7 @@ export default function Numbers4Page() {
                         <span className="digit-cell">{digits[1]}</span>
                         <span className="digit-cell">{digits[2]}</span>
                         <span className="digit-cell">{digits[3]}</span>
+                        <span className="digit-cell" style={{ fontWeight: '700', color: '#667eea' }}>{sum}</span>
                       </div>
                     )
                   })}
