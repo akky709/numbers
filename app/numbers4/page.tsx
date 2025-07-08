@@ -225,6 +225,36 @@ export default function Numbers4Page() {
               </div>
             </div>
 
+            {/* 合計数分析 */}
+            <div className="analysis-card">
+              <div className="card-header">
+                <h3>📊 合計数別出現頻度</h3>
+                <span className="data-count">0〜36の範囲</span>
+              </div>
+              <div className="card-content">
+                <div className="sum-chart">
+                  {Array.from({ length: 37 }, (_, i) => i).map(sum => {
+                    const freq = sumFrequency[sum.toString()] || 0
+                    const percentage = maxSumFrequency > 0 ? (freq / maxSumFrequency) * 100 : 0
+                    return (
+                      <div key={sum} className="sum-bar">
+                        <div className="sum-bar-container">
+                          <div 
+                            className="sum-bar-fill"
+                            style={{ 
+                              height: `${percentage}%`,
+                              backgroundColor: getFrequencyColor(freq, maxSumFrequency)
+                            }}
+                          ></div>
+                        </div>
+                        <div className="sum-bar-number">{sum}</div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            </div>
+
             {/* 位置別分析 */}
             <div className="analysis-card">
               <div className="card-header">
