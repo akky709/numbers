@@ -438,7 +438,6 @@ export default function Numbers4Page() {
                             </span>
                           )}
                         </div>
-                        </div>
                         <span className="digit-cell">{digits[0]}</span>
                         <span className="digit-cell">{digits[1]}</span>
                         <span className="digit-cell">{digits[2]}</span>
