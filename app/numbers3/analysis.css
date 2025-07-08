@@ -269,32 +269,35 @@
 /* 合計数チャート */
 .sum-chart {
   display: flex;
-  justify-content: space-between;
   align-items: end;
   height: 200px;
-  gap: 4px;
+  gap: 2px;
   padding-bottom: 40px;
   position: relative;
   overflow-x: auto;
+  width: 100%;
 }
 
 .sum-bar {
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-width: 20px;
+  flex: 1;
+  min-width: 16px;
   height: 100%;
+  position: relative;
 }
 
 .sum-bar-number {
   position: absolute;
-  bottom: 0;
+  bottom: -20px;
   left: 50%;
   transform: translateX(-50%);
   font-weight: 600;
   color: #4a5568;
-  font-size: 12px;
+  font-size: 10px;
   z-index: 1;
+  white-space: nowrap;
 }
 
 .sum-bar-container {
