@@ -174,20 +174,28 @@ export default function Numbers4Page() {
   }
 
   // SVGパス生成関数
-  const generatePath = (data: number[], width: number, height: number) => {
+  const generatePath = (data: number[], width: number, height: number, padding = 40) => {
     if (data.length === 0) return ''
     
     const maxValue = Math.max(...data, ...previousSumTrend, 36)
     const minValue = Math.min(...data, ...previousSumTrend, 0)
     const range = maxValue - minValue || 1
     
-    const stepX = width / (data.length - 1 || 1)
+    const chartWidth = width - (padding * 2)
+    const stepX = chartWidth / (data.length - 1 || 1)
     
     return data.map((value, index) => {
-      const x = index * stepX
-      const y = height - ((value - minValue) / range) * height
+      const x = padding + (index * stepX)
+      const y = padding + (height - padding * 2) - (((value - minValue) / range) * (height - padding * 2))
       return `${index === 0 ? 'M' : 'L'} ${x} ${y}`
     }).join(' ')
+  }
+
+  // チャートの幅を計算（データ数に応じて動的に調整）
+  const getChartWidth = (dataLength: number) => {
+    const minWidth = 800
+    const pointWidth = 40 // 各データポイント間の幅
+    return Math.max(minWidth, dataLength * pointWidth)
   }
 
   // パターンでフィルターされたデータ
@@ -359,40 +367,73 @@ export default function Numbers4Page() {
                 <span className="data-count">時系列変化</span>
               </div>
               <div className="card-content">
-                <div className="sum-trend-chart">
-                  <div className="chart-container">
-                    <svg className="chart-svg" viewBox="0 0 400 200">
+                <div 
+                  className="sum-trend-chart"
+                  style={{ '--data-length': Math.max(currentSumTrend.length, previousSumTrend.length) } as React.CSSProperties}
+                >
+                  {Math.max(currentSumTrend.length, previousSumTrend.length) > 20 && (
+                    <div className="chart-scroll-hint">
+                      ← 横スクロールで全データを確認
+                    </div>
+                  )}
+                  <div 
+                    className="chart-container"
+                    style={{ width: `${getChartWidth(Math.max(currentSumTrend.length, previousSumTrend.length))}px` }}
+                  >
+                    <svg 
+                      className="chart-svg" 
+                      viewBox={`0 0 ${getChartWidth(Math.max(currentSumTrend.length, previousSumTrend.length))} 260`}
+                      preserveAspectRatio="none"
+                    >
+                      {/* 背景グリッド */}
+                      <defs>
+                        <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                          <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#f1f5f9" strokeWidth="1"/>
+                        </pattern>
+                      </defs>
+                      <rect width="100%" height="100%" fill="url(#grid)" opacity="0.5"/>
+                      
                       {/* グリッド線 */}
-                      {Array.from({ length: 6 }, (_, i) => (
+                      {Array.from({ length: 6 }, (_, i) => {
+                        const y = 40 + (i * (180 / 5))
+                        return (
                         <line
                           key={`grid-${i}`}
                           className="chart-grid"
-                          x1="0"
-                          y1={i * 40}
-                          x2="400"
-                          y2={i * 40}
+                          x1="40"
+                          y1={y}
+                          x2={getChartWidth(Math.max(currentSumTrend.length, previousSumTrend.length)) - 40}
+                          y2={y}
                         />
-                      ))}
+                        )
+                      })}
                       
                       {/* Y軸 */}
-                      <line className="chart-axis" x1="0" y1="0" x2="0" y2="200" />
+                      <line className="chart-axis" x1="40" y1="40" x2="40" y2="220" />
                       
                       {/* X軸 */}
-                      <line className="chart-axis" x1="0" y1="200" x2="400" y2="200" />
+                      <line 
+                        className="chart-axis" 
+                        x1="40" 
+                        y1="220" 
+                        x2={getChartWidth(Math.max(currentSumTrend.length, previousSumTrend.length)) - 40} 
+                        y2="220" 
+                      />
                       
                       {/* 前回期間のライン */}
                       {previousSumTrend.length > 0 && (
                         <>
                           <path
                             className="chart-line-previous"
-                            d={generatePath(previousSumTrend, 400, 200)}
+                            d={generatePath(previousSumTrend, getChartWidth(previousSumTrend.length), 260)}
                           />
                           {previousSumTrend.map((value, index) => {
                             const maxValue = Math.max(...currentSumTrend, ...previousSumTrend, 36)
                             const minValue = Math.min(...currentSumTrend, ...previousSumTrend, 0)
                             const range = maxValue - minValue || 1
-                            const x = (index / (previousSumTrend.length - 1 || 1)) * 400
-                            const y = 200 - ((value - minValue) / range) * 200
+                            const chartWidth = getChartWidth(previousSumTrend.length) - 80
+                            const x = 40 + (index / (previousSumTrend.length - 1 || 1)) * chartWidth
+                            const y = 40 + 180 - (((value - minValue) / range) * 180)
                             return (
                               <circle
                                 key={`prev-point-${index}`}
@@ -410,14 +451,15 @@ export default function Numbers4Page() {
                         <>
                           <path
                             className="chart-line-current"
-                            d={generatePath(currentSumTrend, 400, 200)}
+                            d={generatePath(currentSumTrend, getChartWidth(currentSumTrend.length), 260)}
                           />
                           {currentSumTrend.map((value, index) => {
                             const maxValue = Math.max(...currentSumTrend, ...previousSumTrend, 36)
                             const minValue = Math.min(...currentSumTrend, ...previousSumTrend, 0)
                             const range = maxValue - minValue || 1
-                            const x = (index / (currentSumTrend.length - 1 || 1)) * 400
-                            const y = 200 - ((value - minValue) / range) * 200
+                            const chartWidth = getChartWidth(currentSumTrend.length) - 80
+                            const x = 40 + (index / (currentSumTrend.length - 1 || 1)) * chartWidth
+                            const y = 40 + 180 - (((value - minValue) / range) * 180)
                             return (
                               <circle
                                 key={`curr-point-${index}`}
@@ -430,19 +472,38 @@ export default function Numbers4Page() {
                         </>
                       )}
                       
+                      {/* X軸ラベル（データポイント番号） */}
+                      {currentSumTrend.map((_, index) => {
+                        if (index % Math.max(1, Math.floor(currentSumTrend.length / 10)) === 0) {
+                          const chartWidth = getChartWidth(currentSumTrend.length) - 80
+                          const x = 40 + (index / (currentSumTrend.length - 1 || 1)) * chartWidth
+                          return (
+                            <text
+                              key={`x-label-${index}`}
+                              className="chart-label x-axis"
+                              x={x}
+                              y="240"
+                            >
+                              {index + 1}
+                            </text>
+                          )
+                        }
+                        return null
+                      })}
+                      
                       {/* Y軸ラベル */}
                       {Array.from({ length: 6 }, (_, i) => {
                         const maxValue = Math.max(...currentSumTrend, ...previousSumTrend, 36)
                         const minValue = Math.min(...currentSumTrend, ...previousSumTrend, 0)
                         const range = maxValue - minValue || 1
                         const value = Math.round(minValue + (range * (5 - i)) / 5)
+                        const y = 40 + (i * (180 / 5))
                         return (
                           <text
                             key={`y-label-${i}`}
-                            className="chart-label"
-                            x="-10"
-                            y={i * 40 + 5}
-                            textAnchor="end"
+                            className="chart-label y-axis"
+                            x="35"
+                            y={y}
                           >
                             {value}
                           </text>
